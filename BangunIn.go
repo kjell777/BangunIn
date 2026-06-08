@@ -149,8 +149,10 @@ func SelectionSortAsc(s *supplier, arrCount int) {
 				idx = j
 			}
 		}
-		s[idx] = s[i]
+		temp := s[i] 
 		s[i] = s[idx]
+		s[idx] = temp 
+		// menggunakam temp agar tidak ada duplikat data
 	}
 }
 func InsertionSortDesc(s *supplier, arrCount int) {
@@ -174,8 +176,10 @@ func SelectionSortNama(s *supplier, arrCount int) {
 				idx = j
 			}
 		}
-		s[idx] = s[i]
+		temp := s[i] 
 		s[i] = s[idx]
+		s[idx] = temp 
+		// menggunakam temp agar tidak ada duplikat data
 	}
 }
 func selectSearch(s supplier, arrCount int, riwayatke [NMAX]int) {

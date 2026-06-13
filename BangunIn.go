@@ -51,6 +51,7 @@ func inputData(s *supplier, arrCount *int) {
 func inputRPelayanan(s *supplier, num int) {
 	//riwayatke (*) berfungsi untuk mengupdate banyaknya riwayat pelayanan yang ditambahkan pada satu supplier
 	s[num].riwayatke = s[num].riwayatke + 1
+	fmt.Printf("\nMasukkan riwayat pelayanan supplier: ")
 	fmt.Scan(&s[num].rpelayanan[s[num].riwayatke])
 }
 func outputDaftarMitra(s supplier, arrCount int) {
@@ -61,7 +62,7 @@ func outputDaftarMitra(s supplier, arrCount int) {
 			fmt.Printf("%-2d | %-15s | %-12s | %-10s | %-15s |  %-.2f  | %s\n", i+1, s[i].nama, s[i].kontak, s[i].wilayah, s[i].jenismat, s[i].rating, s[i].rpelayanan[0])
 			if s[i].riwayatke > 0 {
 				for j := 1; j <= s[i].riwayatke; j++ {
-					fmt.Printf("%-2s | %-15s | %-12s | %-10s | %-15s |  %-3s  | %s\n", " ", " ", " ", " ", " ", " ", s[i].rpelayanan[j])
+					fmt.Printf("%-2s | %-15s | %-12s | %-10s | %-15s |  %-3s   | %s\n", " ", " ", " ", " ", " ", " ", s[i].rpelayanan[j])
 				}
 			}
 			tanda = true
@@ -70,7 +71,7 @@ func outputDaftarMitra(s supplier, arrCount int) {
 	if !tanda {
 		fmt.Printf("\n%16sBELUM ADA DATA YANG DIINPUT !!!%17s", "", "")
 	}
-	fmt.Printf("\n\nADD Supplier [1] | MODIFICATION [2] | SORT [3] | SEARCH [4] | STATISTICS [5] | RETURN [6] | QUIT [7]\n")
+	fmt.Printf("\n\nADD Supplier [1] | MODIFICATION [2] | SORT [3] | SEARCH [4] | STATISTICS [5] | QUIT [6]\n")
 	DaftarMitraLanjutan(s, arrCount)
 }
 func DaftarMitraLanjutan(s supplier, arrCount int) {
@@ -94,9 +95,7 @@ func DaftarMitraLanjutan(s supplier, arrCount int) {
 	case 5:
 		countWilayah(s, &w, arrCount, &num)
 	case 6:
-		outputDaftarMitra(s, arrCount)
-	case 7:
-		fmt.Printf("\nProgram Selesai.")
+		fmt.Printf("\nProgram selesai.")
 	default:
 		fmt.Printf("\nInputan tidak valid, silakan coba lagi.")
 		DaftarMitraLanjutan(s, arrCount)
@@ -114,7 +113,13 @@ func modification(s *supplier, arrCount *int) {
 		fmt.Scan(&category)
 		fmt.Printf("\nMasukkan nomor supplier yang ingin di modifikasi: ")
 		fmt.Scan(&num)
-		if category >= 1 && category <= 5 {
+		for num < 1 || num > *arrCount {
+			fmt.Printf("\nNomor supplier tidak valid, silakan coba lagi.")
+			fmt.Printf("\nMasukkan nomor supplier yang ingin di modifikasi: ")
+			fmt.Scan(&num)
+		}
+		num = num - 1
+		if category >= 1 && category <= 4 {
 			fmt.Printf("\nMasukkan isi baru: ")
 			fmt.Scan(&replace)
 			switch category {
@@ -126,7 +131,14 @@ func modification(s *supplier, arrCount *int) {
 				s[num].jenismat = replace
 			case 4:
 				s[num].wilayah = replace
-			case 5:
+			}
+		} else if category == 5 {
+			fmt.Printf("\nMODIF RIWAYAT [1] | ADD RIWAYAT [2]: ")
+			fmt.Scan(&choice)
+			switch choice {
+			case 1:
+				fmt.Printf("\nMasukkan isi baru: ")
+				fmt.Scan(&replace)
 				if s[num].riwayatke == 0 {
 					s[num].rpelayanan[0] = replace
 				} else {
@@ -134,6 +146,8 @@ func modification(s *supplier, arrCount *int) {
 					fmt.Scan(&num2)
 					modificationRP(s, num, num2)
 				}
+			case 2:
+				inputRPelayanan(s, num)
 			}
 		} else if category == 6 {
 			fmt.Printf("\nMasukkan rating baru: ")
@@ -229,7 +243,7 @@ func selectSearch(s supplier, arrCount int) {
 	//fungsi untuk memilih SEARCH BY(name or lokasi...mungkin akan ditambahkan opsi lain setelah review)
 	fmt.Printf("\nSEARCH BY NAME [1] | LOCATION [2] :")
 	var find string
-	var option int
+	var option, pilihan int
 	fmt.Scan(&option)
 	fmt.Printf("\nMasukkan keyword pencarian: ")
 	fmt.Scan(&find)
@@ -239,6 +253,9 @@ func selectSearch(s supplier, arrCount int) {
 	case 2:
 		SequentialSearchLokasi(s, arrCount, find)
 	}
+	fmt.Printf("\n\nRETURN [1]\n")
+	fmt.Scan(&pilihan)
+	outputDaftarMitra(s, arrCount)
 }
 func outputSearch(sSearch supplier, searchcount int, s supplier, arrCount int) {
 	//output hasil search, untuk memimasahkan tabel utama dengan hasil search (Agar bisa kembali ke tabel utama setelah melihat hasil search)
@@ -257,16 +274,6 @@ func outputSearch(sSearch supplier, searchcount int, s supplier, arrCount int) {
 	}
 	if !tanda {
 		fmt.Printf("\n%16sDATA TIDAK DITEMUKAN !!!%17s", "", "")
-	}
-	fmt.Printf("\n\nRETURN [1]\n")
-	var pilihan int
-	fmt.Scan(&pilihan)
-	switch pilihan {
-	case 1:
-		outputDaftarMitra(s, arrCount)
-	default:
-		fmt.Printf("\nInputan tidak valid, silakan coba lagi.")
-		outputSearch(sSearch, searchcount, s, arrCount)
 	}
 }
 func SequentialSearchLokasi(s supplier, arrCount int, find string) {
@@ -320,6 +327,7 @@ func BinarySearchNama(s supplier, arrCount int, find string) {
 func countWilayah(s supplier, w *wilayahs, arrCount int, countw *int) {
 	//menghitung banyaknya wilayah yang ada dan masukkan ke dalam array wilayah.nama (tanpa dupe/double)
 	var tanda bool
+	var pilihan int
 	w[0].nama = s[0].wilayah
 	*countw = 0
 	for i := 1; i < arrCount; i++ {
@@ -345,7 +353,6 @@ func countWilayah(s supplier, w *wilayahs, arrCount int, countw *int) {
 	}
 	outputWilayah(w, *countw)
 	fmt.Printf("\n\nRETURN [1]\n")
-	var pilihan int
 	fmt.Scan(&pilihan)
 	outputDaftarMitra(s, arrCount)
 }
@@ -374,3 +381,5 @@ func rata2rating(w *wilayahs, i int) float64 {
 	}
 	return rata2 / float64(w[i].wilcount)
 }
+
+//catatan asistensi : menu dibuat didepan (jadi ga langsung output tabel), menu dibuat kebawah (karena kaatanya kalau kesamping orang bakal ga ngeh)

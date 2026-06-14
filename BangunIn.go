@@ -10,13 +10,15 @@ type suppliers struct {
 	jenismat, wilayah string
 	rpelayanan        [NMAX]string
 	//array untuk menyiman riwayat pelayanan dari setiap supplier (banyaknya riwayat pelayanan yg dipunyai supplier disimpan pada array riwayatke dengan indeks yang sesuai dengan supplier pada array supplier, contoh : supplier[0] = supplier A, riwayatke[0] = banyaknya riwayat pelayanan yang dimiliki supplier A)
+	//1 supplier dapat memiliki > 1 riwayat pelayanan karena mungkin mitra dari pemakai aplikasi bekerja sama dengan supplier yang sama > 1 kali dan/atau memakai jasa pelayanan yang berbeda dari supplier yang sama di waktu yang berbeda/sama.
 	riwayatke int
 	//array untuk menyimpan banyaknya array rpelayanan yang terisi pada setiap supplier, sehingga ketika output riwayat pelayanan tidak perlu mengecek indeks 1 - NMAX untuk output indeks yang memiliki isi
+	//lebih hemat memori dan waktu karena tidak perlu mengecek indeks yang tidak terisi pada array rpelayanan, cukup print indeks 1 - riwayatke saja (indeks 0 ikut di print di awal dengan data suppliers lain)
 }
 type wilayah struct {
 	nama        string
 	isiSupplier supplier
-	wilcount    int //banyaknya array yang terisi (mulai dari 0)
+	wilcount    int //banyaknya supplier yang termasuk ke dalam 1 wilayah
 }
 type wilayahs [NMAX]wilayah
 type supplier [NMAX]suppliers
@@ -144,6 +146,10 @@ func modification(s *supplier, arrCount *int) {
 				} else {
 					fmt.Printf("\nMasukkan nomor riwayat pelayanan yang ingin di modifikasi (1 - %d): ", s[num].riwayatke)
 					fmt.Scan(&num2)
+					for num2 < 1 || num2 > s[num].riwayatke {
+						fmt.Printf("\nNomor tidak valid, coba lagi: ")
+						fmt.Scan(&num2)
+					}
 					modificationRP(s, num, num2)
 				}
 			case 2:
@@ -175,6 +181,7 @@ func modification(s *supplier, arrCount *int) {
 			s[i] = s[i+1] //menggeser supplier ke kiri untuk mendelete supplier yang ingin didelete
 		}
 		s[*arrCount-1] = suppliers{}
+		//ngosongin array supplier terakhir,  s[*arrCount-1] <= indeks satuan, tipe datanya struct suppliers makanya pake suppliers{}
 		*arrCount--
 	}
 }
@@ -182,7 +189,7 @@ func modificationRP(s *supplier, num int, num2 int) {
 	var replace string
 	fmt.Printf("\nMasukkan riwayat pelayanan baru: ")
 	fmt.Scan(&replace)
-	s[num].rpelayanan[num2] = replace
+	s[num].rpelayanan[num2-1] = replace
 }
 func selectSorting(s *supplier, arrCount int) {
 	//untuk memilih sorting asc or desc (by rating, untuk opsi by variabel lain menyusul)
@@ -257,7 +264,7 @@ func selectSearch(s supplier, arrCount int) {
 	fmt.Scan(&pilihan)
 	outputDaftarMitra(s, arrCount)
 }
-func outputSearch(sSearch supplier, searchcount int, s supplier, arrCount int) {
+func outputSearch(sSearch supplier, searchcount int) {
 	//output hasil search, untuk memimasahkan tabel utama dengan hasil search (Agar bisa kembali ke tabel utama setelah melihat hasil search)
 	fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
 	tanda := false
@@ -286,7 +293,7 @@ func SequentialSearchLokasi(s supplier, arrCount int, find string) {
 			arrLokasi++              //menambah jumlah data yang berhasil ditemukan sekaligus menjadi indeks berikutnya untuk array lokasi
 		}
 	}
-	outputSearch(lokasi, arrLokasi, s, arrCount)
+	outputSearch(lokasi, arrLokasi)
 }
 func BinarySearchNama(s supplier, arrCount int, find string) {
 	//mencari supplier berdasarkan nama, disort by nama terlebih dahulu
@@ -322,7 +329,7 @@ func BinarySearchNama(s supplier, arrCount int, find string) {
 			i++
 		}
 	}
-	outputSearch(nama, arrNama, s, arrCount)
+	outputSearch(nama, arrNama)
 }
 func countWilayah(s supplier, w *wilayahs, arrCount int, countw *int) {
 	//menghitung banyaknya wilayah yang ada dan masukkan ke dalam array wilayah.nama (tanpa dupe/double)

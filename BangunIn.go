@@ -57,7 +57,7 @@ func inputRPelayanan(s *supplier, num int) {
 	fmt.Scan(&s[num].rpelayanan[s[num].riwayatke])
 }
 func outputDaftarMitra(s supplier, arrCount int) {
-	fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
+	fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
 	tanda := false
 	for i := 0; i < arrCount; i++ {
 		if s[i].nama != "" {
@@ -104,6 +104,7 @@ func DaftarMitraLanjutan(s supplier, arrCount int) {
 	}
 }
 func modification(s *supplier, arrCount *int) {
+	//fungsi untuk modifikasi data supplier, s dan arrcount dibuat pointer (*) karena modifikasi akan mengubah jumlah/isi dari array s dan juga arrCount yang menyimpan banyaknya array supplier yang terisi jadi harus terus diupdate pada variabel dimana fungsi ini akan dipanggil (outputDaftarMitra)
 	var replace string
 	var num, num2, choice, category int
 	var r3place float64
@@ -186,11 +187,15 @@ func modification(s *supplier, arrCount *int) {
 	}
 }
 func modificationRP(s *supplier, num int, num2 int) {
+	//fungsi untuk modifikasi riwayat pelayanan, num dan num2 sebagai indeks supplier dan riwayat pelayanan yang ingin dimodifikasi
+	//s dibuat pointer (*) karena modifikasi akan mengubah isi dari array s, jadi harus terus diupdate pada variabel dimana fungsi ini akan dipanggil (modification)
 	var replace string
 	fmt.Printf("\nMasukkan riwayat pelayanan baru: ")
 	fmt.Scan(&replace)
 	s[num].rpelayanan[num2-1] = replace
 }
+
+//variabel s pada semua fungsi sorting dibuat pointer (*) karena sorting akan mengubah urutan isi dari array s, jadi harus terus diupdate pada variabel dimana fungsi ini akan dipanggil
 func selectSorting(s *supplier, arrCount int) {
 	//untuk memilih sorting asc or desc (by rating, untuk opsi by variabel lain menyusul)
 	var option int
@@ -246,6 +251,8 @@ func SelectionSortNama(s *supplier, arrCount int) {
 		// menggunakam temp agar tidak ada duplikat data
 	}
 }
+
+//variabel pada fungsi search tidak perlu dibuat pointer dikarenbakan fungsi search tidak akan mengubah isi dari array supplier (hanya mencari dan menampilkan yang dicari)
 func selectSearch(s supplier, arrCount int) {
 	//fungsi untuk memilih SEARCH BY(name or lokasi...mungkin akan ditambahkan opsi lain setelah review)
 	fmt.Printf("\nSEARCH BY NAME [1] | LOCATION [2] :")
@@ -266,7 +273,7 @@ func selectSearch(s supplier, arrCount int) {
 }
 func outputSearch(sSearch supplier, searchcount int) {
 	//output hasil search, untuk memimasahkan tabel utama dengan hasil search (Agar bisa kembali ke tabel utama setelah melihat hasil search)
-	fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
+	fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
 	tanda := false
 	for i := 0; i < searchcount; i++ {
 		if sSearch[i].nama != "" {
@@ -298,6 +305,7 @@ func SequentialSearchLokasi(s supplier, arrCount int, find string) {
 func BinarySearchNama(s supplier, arrCount int, find string) {
 	//mencari supplier berdasarkan nama, disort by nama terlebih dahulu
 	SelectionSortNama(&s, arrCount)
+	//nilai array supplier pada fungsi selectionsortnama akan dicopy ke variabel lokal dari binarysearch (s) sehingga tidak mengubah isi dari array asli supplier pada outputDaftarMitra/tabel supplier asli)
 	var nama supplier
 	var left, mid, right, found, arrNama, i int
 	found = -1
@@ -332,7 +340,7 @@ func BinarySearchNama(s supplier, arrCount int, find string) {
 	outputSearch(nama, arrNama)
 }
 func countWilayah(s supplier, w *wilayahs, arrCount int, countw *int) {
-	//menghitung banyaknya wilayah yang ada dan masukkan ke dalam array wilayah.nama (tanpa dupe/double)
+	//menghitung banyaknya wilayah yang ada (countw) dan masukkan nama wilayah ke dalam array wilayah.nama (tanpa dupe/double)
 	var tanda bool
 	var pilihan int
 	w[0].nama = s[0].wilayah
@@ -349,7 +357,7 @@ func countWilayah(s supplier, w *wilayahs, arrCount int, countw *int) {
 			w[*countw].nama = s[i].wilayah
 		}
 	}
-	//untuk mengisi array setiap wilayah dengan nilai array supplier dengan wilayah yang sama (Contoh : W[0].nama = Jabar, isiSupplier [0] = array supplier abcd, isiSupplier [1] = array supplier abc && W[1].nama = Jakarta, isiSupplier [0]  = supplier cde
+	//untuk mengisi array setiap wilayah (w[0-*countw].isiSupplier[0-w[i].wilcount-1]) dengan nilai array supplier dengan wilayah yang sama
 	for i := 0; i <= *countw; i++ {
 		for j := 0; j < arrCount; j++ {
 			if w[i].nama == s[j].wilayah {
@@ -358,15 +366,16 @@ func countWilayah(s supplier, w *wilayahs, arrCount int, countw *int) {
 			}
 		}
 	}
-	outputWilayah(w, *countw)
+	outputWilayah(*w, *countw)
 	fmt.Printf("\n\nRETURN [1]\n")
 	fmt.Scan(&pilihan)
 	outputDaftarMitra(s, arrCount)
 }
-func outputWilayah(w *wilayahs, countw int) {
+func outputWilayah(w wilayahs, countw int) {
 	//output jumlah dan rata2 wilayah
 	for i := 0; i <= countw; i++ {
 		fmt.Printf("WIlayah %s: jumlah %d supplier dan rata-rata rating adalah %.2f\n", w[i].nama, w[i].wilcount, rata2rating(w, i))
+		fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
 		for j := 0; j < w[i].wilcount; j++ {
 			fmt.Printf("%-2d | %-15s | %-12s | %-10s | %-15s |  %-.2f  | %s\n", j+1, w[i].isiSupplier[j].nama, w[i].isiSupplier[j].kontak, w[i].isiSupplier[j].wilayah, w[i].isiSupplier[j].jenismat, w[i].isiSupplier[j].rating, w[i].isiSupplier[j].rpelayanan[0])
 			if w[i].isiSupplier[j].riwayatke > 0 {
@@ -377,7 +386,7 @@ func outputWilayah(w *wilayahs, countw int) {
 		}
 	}
 }
-func rata2rating(w *wilayahs, i int) float64 {
+func rata2rating(w wilayahs, i int) float64 {
 	//rata-rata rating pada wilayah ke i
 	var rata2 float64
 	for j := 0; j < w[i].wilcount; j++ {

@@ -79,8 +79,6 @@ func outputDaftarMitra(s supplier, arrCount int) {
 func DaftarMitraLanjutan(s supplier, arrCount int) {
 	//sebagai fungsi lanjutan untuk akses opsi pada outputDaftarMitra
 	var lanjutan int
-	var w wilayahs
-	var num int
 	fmt.Scan(&lanjutan)
 	switch lanjutan {
 	case 1:
@@ -95,7 +93,7 @@ func DaftarMitraLanjutan(s supplier, arrCount int) {
 	case 4:
 		selectSearch(s, arrCount)
 	case 5:
-		countWilayah(s, &w, arrCount, &num)
+		countWilayah(s, arrCount)
 	case 6:
 		fmt.Printf("\nProgram selesai.")
 	default:
@@ -339,26 +337,27 @@ func BinarySearchNama(s supplier, arrCount int, find string) {
 	}
 	outputSearch(nama, arrNama)
 }
-func countWilayah(s supplier, w *wilayahs, arrCount int, countw *int) {
+func countWilayah(s supplier, arrCount int) {
 	//menghitung banyaknya wilayah yang ada (countw) dan masukkan nama wilayah ke dalam array wilayah.nama (tanpa dupe/double)
+	var w wilayahs
 	var tanda bool
-	var pilihan int
+	var pilihan, countw int
 	w[0].nama = s[0].wilayah
-	*countw = 0
+	countw = 0
 	for i := 1; i < arrCount; i++ {
 		tanda = false
-		for temp := 0; temp <= *countw; temp++ {
+		for temp := 0; temp <= countw; temp++ {
 			if w[temp].nama == s[i].wilayah {
 				tanda = true
 			}
 		}
 		if !tanda {
-			*countw++
-			w[*countw].nama = s[i].wilayah
+			countw++
+			w[countw].nama = s[i].wilayah
 		}
 	}
 	//untuk mengisi array setiap wilayah (w[0-*countw].isiSupplier[0-w[i].wilcount-1]) dengan nilai array supplier dengan wilayah yang sama
-	for i := 0; i <= *countw; i++ {
+	for i := 0; i <= countw; i++ {
 		for j := 0; j < arrCount; j++ {
 			if w[i].nama == s[j].wilayah {
 				w[i].isiSupplier[w[i].wilcount] = s[j]
@@ -366,7 +365,7 @@ func countWilayah(s supplier, w *wilayahs, arrCount int, countw *int) {
 			}
 		}
 	}
-	outputWilayah(*w, *countw)
+	outputWilayah(w, countw)
 	fmt.Printf("\n\nRETURN [1]\n")
 	fmt.Scan(&pilihan)
 	outputDaftarMitra(s, arrCount)
@@ -374,7 +373,7 @@ func countWilayah(s supplier, w *wilayahs, arrCount int, countw *int) {
 func outputWilayah(w wilayahs, countw int) {
 	//output jumlah dan rata2 wilayah
 	for i := 0; i <= countw; i++ {
-		fmt.Printf("WIlayah %s: jumlah %d supplier dan rata-rata rating adalah %.2f\n", w[i].nama, w[i].wilcount, rata2rating(w, i))
+		fmt.Printf("\nWilayah %s: jumlah %d supplier dan rata-rata rating adalah %.2f", w[i].nama, w[i].wilcount, rata2rating(w, i))
 		fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
 		for j := 0; j < w[i].wilcount; j++ {
 			fmt.Printf("%-2d | %-15s | %-12s | %-10s | %-15s |  %-.2f  | %s\n", j+1, w[i].isiSupplier[j].nama, w[i].isiSupplier[j].kontak, w[i].isiSupplier[j].wilayah, w[i].isiSupplier[j].jenismat, w[i].isiSupplier[j].rating, w[i].isiSupplier[j].rpelayanan[0])

@@ -23,14 +23,87 @@ type wilayah struct {
 type wilayahs [NMAX]wilayah
 type supplier [NMAX]suppliers
 
+
 func main() {
 	var s supplier
 	var arrCount int
-	outputDaftarMitra(s, arrCount)
+	menuawal(&s, &arrCount) // program dimulai dari menuawal 
 }
+
+//  menu awal aplikasi 
+func menuawal(s *supplier, arrCount *int) {
+	var pilihan int
+	fmt.Printf("\n=================================================\n")
+	fmt.Printf("                BANGUNIN                  \n")
+	fmt.Printf("=================================================\n")
+	fmt.Printf("1. Open List Mitra\n")
+	fmt.Printf("2. Quit\n")
+	fmt.Printf("=================================================\n")
+	fmt.Printf("Pilih menu (1-2): ")
+	fmt.Scan(&pilihan)
+
+	switch pilihan {
+	case 1:
+		menuutama(s, arrCount) 
+	case 2:
+		fmt.Printf("\nProgram selesai.\n")
+	default:
+		fmt.Printf("\nInputan tidak valid.\n")
+		menuawal(s, arrCount)
+	}
+}
+
+// menu utama aplikasi
+func menuutama(s *supplier, arrCount *int) {
+	outputDaftarMitra(*s, *arrCount)
+	var pilihan int
+	fmt.Printf("\n=================================================\n")
+	fmt.Printf("                 MENU UTAMA BANGUNIN             \n")
+	fmt.Printf("=================================================\n")
+	fmt.Printf("1. Tambah Data Supplier (ADD)\n")
+	fmt.Printf("2. Modifikasi Data (MODIFICATION / DELETE)\n")
+	fmt.Printf("3. Urutkan Data (SORT)\n")
+	fmt.Printf("4. Cari Data (SEARCH)\n")
+	fmt.Printf("5. Statistik Wilayah (STATISTICS)\n")
+	fmt.Printf("6. Kembali ke Menu Awal (RETURN)\n")
+	fmt.Printf("=================================================\n")
+	fmt.Printf("Pilih aksi (1-6): ")
+	fmt.Scan(&pilihan)
+
+	switch pilihan {
+	case 1:
+		inputData(s, arrCount)
+		menuutama(s, arrCount) 
+	case 2:
+		modification(s, arrCount)
+		menuutama(s, arrCount)
+	case 3:
+		selectSorting(s, *arrCount)
+		menuutama(s, arrCount)
+	case 4:
+		selectSearch(*s, *arrCount)
+		kembalikemenuutama(s, arrCount) 
+	case 5:
+		countWilayah(*s, *arrCount)
+		kembalikemenuutama(s, arrCount) 
+	case 6:
+		menuawal(s, arrCount) 
+	default:
+		fmt.Printf("\nInputan tidak valid, silakan coba lagi.\n")
+		menuutama(s, arrCount)
+	}
+}
+
+func kembalikemenuutama(s *supplier, arrCount *int) {
+	var kembali string
+	fmt.Printf("\n[Ketik huruf/angka apapun untuk kembali ke Menu Utama] ")
+	fmt.Scan(&kembali)
+	menuutama(s, arrCount)
+}
+
 func inputData(s *supplier, arrCount *int) {
 	//arrCount dibuat (*) untuk dapat terus mengupdate banyaknya array supplier yang terisi, karena array supplier dapat terus dimodifikasi (add, delete)
-	fmt.Print("PETUNJUK : GUNAKAN UNDERSCORE (_) SEBAGAI SPASI")
+	fmt.Print("\nPETUNJUK : GUNAKAN UNDERSCORE (_) SEBAGAI SPASI")
 	fmt.Printf("\nMasukkan nama supplier: ")
 	fmt.Scan(&s[*arrCount].nama)
 	fmt.Printf("\nMasukkan kontak supplier: ")
@@ -50,13 +123,16 @@ func inputData(s *supplier, arrCount *int) {
 	fmt.Scan(&s[*arrCount].rpelayanan[0])
 	*arrCount++
 }
+
 func inputRPelayanan(s *supplier, num int) {
 	//riwayatke (*) berfungsi untuk mengupdate banyaknya riwayat pelayanan yang ditambahkan pada satu supplier
 	s[num].riwayatke = s[num].riwayatke + 1
 	fmt.Printf("\nMasukkan riwayat pelayanan supplier: ")
 	fmt.Scan(&s[num].rpelayanan[s[num].riwayatke])
 }
+
 func outputDaftarMitra(s supplier, arrCount int) {
+	//sebagai fungsi lanjutan untuk akses opsi pada outputDaftarMitra
 	fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
 	tanda := false
 	for i := 0; i < arrCount; i++ {
@@ -68,39 +144,18 @@ func outputDaftarMitra(s supplier, arrCount int) {
 				}
 			}
 			tanda = true
+			fmt.Println("-------------------------------------------------------------------------------------------------")
+			// [BARU] bikin "sekat" per barisnya
 		}
 	}
+		
+	
 	if !tanda {
-		fmt.Printf("\n%16sBELUM ADA DATA YANG DIINPUT !!!%17s", "", "")
+		fmt.Printf("\n%16sBELUM ADA DATA YANG DIINPUT !!!%17s\n", "", "")
 	}
-	fmt.Printf("\n\nADD Supplier [1] | MODIFICATION [2] | SORT [3] | SEARCH [4] | STATISTICS [5] | QUIT [6]\n")
-	DaftarMitraLanjutan(s, arrCount)
+
 }
-func DaftarMitraLanjutan(s supplier, arrCount int) {
-	//sebagai fungsi lanjutan untuk akses opsi pada outputDaftarMitra
-	var lanjutan int
-	fmt.Scan(&lanjutan)
-	switch lanjutan {
-	case 1:
-		inputData(&s, &arrCount)
-		outputDaftarMitra(s, arrCount)
-	case 2:
-		modification(&s, &arrCount)
-		outputDaftarMitra(s, arrCount)
-	case 3:
-		selectSorting(&s, arrCount)
-		outputDaftarMitra(s, arrCount)
-	case 4:
-		selectSearch(s, arrCount)
-	case 5:
-		countWilayah(s, arrCount)
-	case 6:
-		fmt.Printf("\nProgram selesai.")
-	default:
-		fmt.Printf("\nInputan tidak valid, silakan coba lagi.")
-		DaftarMitraLanjutan(s, arrCount)
-	}
-}
+
 func modification(s *supplier, arrCount *int) {
 	//fungsi untuk modifikasi data supplier, s dan arrcount dibuat pointer (*) karena modifikasi akan mengubah jumlah/isi dari array s dan juga arrCount yang menyimpan banyaknya array supplier yang terisi jadi harus terus diupdate pada variabel dimana fungsi ini akan dipanggil (outputDaftarMitra)
 	var replace string
@@ -177,13 +232,14 @@ func modification(s *supplier, arrCount *int) {
 		}
 		idxdel = idxdel - 1
 		for i := idxdel; i < *arrCount-1; i++ {
-			s[i] = s[i+1] //menggeser supplier ke kiri untuk mendelete supplier yang ingin didelete
+			s[i] = s[i+1]//menggeser supplier ke kiri untuk mendelete supplier yang ingin didelete
 		}
 		s[*arrCount-1] = suppliers{}
 		//ngosongin array supplier terakhir,  s[*arrCount-1] <= indeks satuan, tipe datanya struct suppliers makanya pake suppliers{}
 		*arrCount--
 	}
 }
+
 func modificationRP(s *supplier, num int, num2 int) {
 	//fungsi untuk modifikasi riwayat pelayanan, num dan num2 sebagai indeks supplier dan riwayat pelayanan yang ingin dimodifikasi
 	//s dibuat pointer (*) karena modifikasi akan mengubah isi dari array s, jadi harus terus diupdate pada variabel dimana fungsi ini akan dipanggil (modification)
@@ -197,7 +253,7 @@ func modificationRP(s *supplier, num int, num2 int) {
 func selectSorting(s *supplier, arrCount int) {
 	//untuk memilih sorting asc or desc (by rating, untuk opsi by variabel lain menyusul)
 	var option int
-	fmt.Printf("\nASCENDING [1] || DESCENDING [2] by rating (tulis dalam ANGKA):")
+	fmt.Printf("\nASCENDING [1] || DESCENDING [2] by rating (tulis dalam ANGKA): ")
 	fmt.Scan(&option)
 	switch option {
 	case 1:
@@ -206,6 +262,7 @@ func selectSorting(s *supplier, arrCount int) {
 		InsertionSortDesc(s, arrCount)
 	}
 }
+
 func SelectionSortAsc(s *supplier, arrCount int) {
 	// selection sort ascending based on rating
 	var idx int
@@ -222,6 +279,7 @@ func SelectionSortAsc(s *supplier, arrCount int) {
 		// menggunakam temp agar tidak ada duplikat data
 	}
 }
+
 func InsertionSortDesc(s *supplier, arrCount int) {
 	// insertion sort descending based on rating
 	for pass := 1; pass <= arrCount-1; pass++ {
@@ -234,6 +292,7 @@ func InsertionSortDesc(s *supplier, arrCount int) {
 		s[i] = temp
 	}
 }
+
 func SelectionSortNama(s *supplier, arrCount int) {
 	//selection sort ascending based on nama (untuk kebutuhan BinarySearchNama)
 	for i := 0; i < arrCount; i++ {
@@ -253,9 +312,9 @@ func SelectionSortNama(s *supplier, arrCount int) {
 //variabel pada fungsi search tidak perlu dibuat pointer dikarenbakan fungsi search tidak akan mengubah isi dari array supplier (hanya mencari dan menampilkan yang dicari)
 func selectSearch(s supplier, arrCount int) {
 	//fungsi untuk memilih SEARCH BY(name or lokasi...mungkin akan ditambahkan opsi lain setelah review)
-	fmt.Printf("\nSEARCH BY NAME [1] | LOCATION [2] :")
+	fmt.Printf("\nSEARCH BY NAME [1] | LOCATION [2] : ")
 	var find string
-	var option, pilihan int
+	var option int
 	fmt.Scan(&option)
 	fmt.Printf("\nMasukkan keyword pencarian: ")
 	fmt.Scan(&find)
@@ -265,12 +324,12 @@ func selectSearch(s supplier, arrCount int) {
 	case 2:
 		SequentialSearchLokasi(s, arrCount, find)
 	}
-	fmt.Printf("\n\nRETURN [1]\n")
-	fmt.Scan(&pilihan)
-	outputDaftarMitra(s, arrCount)
+	// [HAPUS] input return manual diganti
 }
+
 func outputSearch(sSearch supplier, searchcount int) {
 	//output hasil search, untuk memimasahkan tabel utama dengan hasil search (Agar bisa kembali ke tabel utama setelah melihat hasil search)
+	
 	fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
 	tanda := false
 	for i := 0; i < searchcount; i++ {
@@ -282,28 +341,37 @@ func outputSearch(sSearch supplier, searchcount int) {
 				}
 			}
 			tanda = true
+			fmt.Println("-------------------------------------------------------------------------------------------------")
+			// [BARU] bikin "sekat' perbarisnya
 		}
 	}
+		
+	
 	if !tanda {
-		fmt.Printf("\n%16sDATA TIDAK DITEMUKAN !!!%17s", "", "")
+		fmt.Printf("\n%16sDATA TIDAK DITEMUKAN !!!%17s\n", "", "")
 	}
 }
+
+
 func SequentialSearchLokasi(s supplier, arrCount int, find string) {
 	//mencari supplier via lokasi menggunakan sequential search, memasukkan supplier yang memiliki lokasi yg sama ke array lokasi lalu output
 	var lokasi supplier
 	var arrLokasi int
 	for i := 0; i < arrCount; i++ {
 		if s[i].wilayah == find {
-			lokasi[arrLokasi] = s[i] //dilakukan untuk memindahkan isi dari supplier dicari (via lokasi) ke array lokasi pada indeks ke arrLokasi (supplier yang berbeda bisa mempunyai lokasi yang sama, maka dibuat array baru agar pada proses output bisa keluar semua supplier dengan lokasi yang dicari)
-			arrLokasi++              //menambah jumlah data yang berhasil ditemukan sekaligus menjadi indeks berikutnya untuk array lokasi
+			lokasi[arrLokasi] = s[i]//dilakukan untuk memindahkan isi dari supplier dicari (via lokasi) ke array lokasi pada indeks ke arrLokasi (supplier yang berbeda bisa mempunyai lokasi yang sama, maka dibuat array baru agar pada proses output bisa keluar semua supplier dengan lokasi yang dicari)
+			
+			arrLokasi++//menambah jumlah data yang berhasil ditemukan sekaligus menjadi indeks berikutnya untuk array lokasi
 		}
 	}
 	outputSearch(lokasi, arrLokasi)
 }
+
 func BinarySearchNama(s supplier, arrCount int, find string) {
 	//mencari supplier berdasarkan nama, disort by nama terlebih dahulu
 	SelectionSortNama(&s, arrCount)
 	//nilai array supplier pada fungsi selectionsortnama akan dicopy ke variabel lokal dari binarysearch (s) sehingga tidak mengubah isi dari array asli supplier pada outputDaftarMitra/tabel supplier asli)
+	
 	var nama supplier
 	var left, mid, right, found, arrNama, i int
 	found = -1
@@ -337,11 +405,12 @@ func BinarySearchNama(s supplier, arrCount int, find string) {
 	}
 	outputSearch(nama, arrNama)
 }
+
 func countWilayah(s supplier, arrCount int) {
 	//menghitung banyaknya wilayah yang ada (countw) dan masukkan nama wilayah ke dalam array wilayah.nama (tanpa dupe/double)
 	var w wilayahs
 	var tanda bool
-	var pilihan, countw int
+	var countw int
 	w[0].nama = s[0].wilayah
 	countw = 0
 	for i := 1; i < arrCount; i++ {
@@ -366,10 +435,9 @@ func countWilayah(s supplier, arrCount int) {
 		}
 	}
 	outputWilayah(w, countw)
-	fmt.Printf("\n\nRETURN [1]\n")
-	fmt.Scan(&pilihan)
-	outputDaftarMitra(s, arrCount)
+	// [GANTI] input return manual diganti
 }
+
 func outputWilayah(w wilayahs, countw int) {
 	//output jumlah dan rata2 wilayah
 	for i := 0; i <= countw; i++ {
@@ -385,6 +453,7 @@ func outputWilayah(w wilayahs, countw int) {
 		}
 	}
 }
+
 func rata2rating(w wilayahs, i int) float64 {
 	//rata-rata rating pada wilayah ke i
 	var rata2 float64
@@ -397,4 +466,4 @@ func rata2rating(w wilayahs, i int) float64 {
 	return rata2 / float64(w[i].wilcount)
 }
 
-//catatan asistensi : menu dibuat didepan (jadi ga langsung output tabel), menu dibuat kebawah (karena kaatanya kalau kesamping orang bakal ga ngeh)
+//catatan asistensi : menu dibuat didepan (jadi ga langsung output tabel), menu dibuat kebawah (karena kaatanya kalau kesamping orang bakal ga ngeh) dan bikin "sekat" per baris outputnya

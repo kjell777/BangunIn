@@ -23,29 +23,31 @@ type wilayah struct {
 type wilayahs [NMAX]wilayah
 type supplier [NMAX]suppliers
 
-
 func main() {
 	var s supplier
 	var arrCount int
-	menuawal(&s, &arrCount) // program dimulai dari menuawal 
+	menuawal(s, arrCount) // program dimulai dari menuawal
 }
 
-//  menu awal aplikasi 
-func menuawal(s *supplier, arrCount *int) {
+//  menu awal aplikasi
+func menuawal(s supplier, arrCount int) {
 	var pilihan int
 	fmt.Printf("\n=================================================\n")
-	fmt.Printf("                BANGUNIN                  \n")
+	fmt.Printf("                    BANGUNIN                   \n")
 	fmt.Printf("=================================================\n")
-	fmt.Printf("1. Open List Mitra\n")
-	fmt.Printf("2. Quit\n")
+	fmt.Printf("[1] Open List Mitra\n")
+	fmt.Printf("[2] Statistik Mitra\n")
+	fmt.Printf("[3] Quit\n")
 	fmt.Printf("=================================================\n")
-	fmt.Printf("Pilih menu (1-2): ")
+	fmt.Printf("Pilih menu (1-3): ")
 	fmt.Scan(&pilihan)
 
 	switch pilihan {
 	case 1:
-		menuutama(s, arrCount) 
+		menuutama(s, arrCount)
 	case 2:
+		countWilayah(s, arrCount)
+	case 3:
 		fmt.Printf("\nProgram selesai.\n")
 	default:
 		fmt.Printf("\nInputan tidak valid.\n")
@@ -53,50 +55,44 @@ func menuawal(s *supplier, arrCount *int) {
 	}
 }
 
-// menu utama aplikasi
-func menuutama(s *supplier, arrCount *int) {
-	outputDaftarMitra(*s, *arrCount)
+//menu modifikasi dan ganti" supplier
+func menuutama(s supplier, arrCount int) {
+	outputDaftarMitra(s, arrCount)
 	var pilihan int
-	fmt.Printf("\n=================================================\n")
-	fmt.Printf("                 MENU UTAMA BANGUNIN             \n")
-	fmt.Printf("=================================================\n")
-	fmt.Printf("1. Tambah Data Supplier (ADD)\n")
-	fmt.Printf("2. Modifikasi Data (MODIFICATION / DELETE)\n")
-	fmt.Printf("3. Urutkan Data (SORT)\n")
-	fmt.Printf("4. Cari Data (SEARCH)\n")
-	fmt.Printf("5. Statistik Wilayah (STATISTICS)\n")
-	fmt.Printf("6. Kembali ke Menu Awal (RETURN)\n")
-	fmt.Printf("=================================================\n")
-	fmt.Printf("Pilih aksi (1-6): ")
+	fmt.Printf("\n=================================================================================================\n")
+	fmt.Printf("MENU : \n")
+	fmt.Printf("[1] Tambah Data Supplier (ADD)\n")
+	fmt.Printf("[2] Modifikasi Data (MODIFICATION / DELETE)\n")
+	fmt.Printf("[3] Urutkan Data (SORT)\n")
+	fmt.Printf("[4] Cari Data (SEARCH)\n")
+	fmt.Printf("[5] Kembali ke Menu Awal (RETURN)\n")
+	fmt.Printf("Pilih aksi (1-5): ")
 	fmt.Scan(&pilihan)
 
 	switch pilihan {
 	case 1:
-		inputData(s, arrCount)
-		menuutama(s, arrCount) 
+		inputData(&s, &arrCount)
+		menuutama(s, arrCount)
 	case 2:
-		modification(s, arrCount)
+		modification(&s, &arrCount)
 		menuutama(s, arrCount)
 	case 3:
-		selectSorting(s, *arrCount)
+		selectSorting(&s, arrCount)
 		menuutama(s, arrCount)
 	case 4:
-		selectSearch(*s, *arrCount)
-		kembalikemenuutama(s, arrCount) 
+		selectSearch(s, arrCount)
+		kembalikemenuutama(s, arrCount)
 	case 5:
-		countWilayah(*s, *arrCount)
-		kembalikemenuutama(s, arrCount) 
-	case 6:
-		menuawal(s, arrCount) 
+		menuawal(s, arrCount)
 	default:
 		fmt.Printf("\nInputan tidak valid, silakan coba lagi.\n")
 		menuutama(s, arrCount)
 	}
 }
 
-func kembalikemenuutama(s *supplier, arrCount *int) {
+func kembalikemenuutama(s supplier, arrCount int) {
 	var kembali string
-	fmt.Printf("\n[Ketik huruf/angka apapun untuk kembali ke Menu Utama] ")
+	fmt.Printf("\n[1] RETURN")
 	fmt.Scan(&kembali)
 	menuutama(s, arrCount)
 }
@@ -133,27 +129,21 @@ func inputRPelayanan(s *supplier, num int) {
 
 func outputDaftarMitra(s supplier, arrCount int) {
 	//sebagai fungsi lanjutan untuk akses opsi pada outputDaftarMitra
+	var i int
 	fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
-	tanda := false
-	for i := 0; i < arrCount; i++ {
-		if s[i].nama != "" {
+	if s[i].nama != "" {
+		for i := 0; i < arrCount; i++ {
 			fmt.Printf("%-2d | %-15s | %-12s | %-10s | %-15s |  %-.2f  | %s\n", i+1, s[i].nama, s[i].kontak, s[i].wilayah, s[i].jenismat, s[i].rating, s[i].rpelayanan[0])
 			if s[i].riwayatke > 0 {
 				for j := 1; j <= s[i].riwayatke; j++ {
 					fmt.Printf("%-2s | %-15s | %-12s | %-10s | %-15s |  %-3s   | %s\n", " ", " ", " ", " ", " ", " ", s[i].rpelayanan[j])
 				}
 			}
-			tanda = true
-			fmt.Println("-------------------------------------------------------------------------------------------------")
-			// [BARU] bikin "sekat" per barisnya
+			fmt.Printf("-------------------------------------------------------------------------------------------------\n")
 		}
-	}
-		
-	
-	if !tanda {
+	} else {
 		fmt.Printf("\n%16sBELUM ADA DATA YANG DIINPUT !!!%17s\n", "", "")
 	}
-
 }
 
 func modification(s *supplier, arrCount *int) {
@@ -232,7 +222,7 @@ func modification(s *supplier, arrCount *int) {
 		}
 		idxdel = idxdel - 1
 		for i := idxdel; i < *arrCount-1; i++ {
-			s[i] = s[i+1]//menggeser supplier ke kiri untuk mendelete supplier yang ingin didelete
+			s[i] = s[i+1] //menggeser supplier ke kiri untuk mendelete supplier yang ingin didelete
 		}
 		s[*arrCount-1] = suppliers{}
 		//ngosongin array supplier terakhir,  s[*arrCount-1] <= indeks satuan, tipe datanya struct suppliers makanya pake suppliers{}
@@ -329,7 +319,7 @@ func selectSearch(s supplier, arrCount int) {
 
 func outputSearch(sSearch supplier, searchcount int) {
 	//output hasil search, untuk memimasahkan tabel utama dengan hasil search (Agar bisa kembali ke tabel utama setelah melihat hasil search)
-	
+
 	fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
 	tanda := false
 	for i := 0; i < searchcount; i++ {
@@ -345,13 +335,11 @@ func outputSearch(sSearch supplier, searchcount int) {
 			// [BARU] bikin "sekat' perbarisnya
 		}
 	}
-		
-	
+
 	if !tanda {
 		fmt.Printf("\n%16sDATA TIDAK DITEMUKAN !!!%17s\n", "", "")
 	}
 }
-
 
 func SequentialSearchLokasi(s supplier, arrCount int, find string) {
 	//mencari supplier via lokasi menggunakan sequential search, memasukkan supplier yang memiliki lokasi yg sama ke array lokasi lalu output
@@ -359,9 +347,9 @@ func SequentialSearchLokasi(s supplier, arrCount int, find string) {
 	var arrLokasi int
 	for i := 0; i < arrCount; i++ {
 		if s[i].wilayah == find {
-			lokasi[arrLokasi] = s[i]//dilakukan untuk memindahkan isi dari supplier dicari (via lokasi) ke array lokasi pada indeks ke arrLokasi (supplier yang berbeda bisa mempunyai lokasi yang sama, maka dibuat array baru agar pada proses output bisa keluar semua supplier dengan lokasi yang dicari)
-			
-			arrLokasi++//menambah jumlah data yang berhasil ditemukan sekaligus menjadi indeks berikutnya untuk array lokasi
+			lokasi[arrLokasi] = s[i] //dilakukan untuk memindahkan isi dari supplier dicari (via lokasi) ke array lokasi pada indeks ke arrLokasi (supplier yang berbeda bisa mempunyai lokasi yang sama, maka dibuat array baru agar pada proses output bisa keluar semua supplier dengan lokasi yang dicari)
+
+			arrLokasi++ //menambah jumlah data yang berhasil ditemukan sekaligus menjadi indeks berikutnya untuk array lokasi
 		}
 	}
 	outputSearch(lokasi, arrLokasi)
@@ -371,7 +359,7 @@ func BinarySearchNama(s supplier, arrCount int, find string) {
 	//mencari supplier berdasarkan nama, disort by nama terlebih dahulu
 	SelectionSortNama(&s, arrCount)
 	//nilai array supplier pada fungsi selectionsortnama akan dicopy ke variabel lokal dari binarysearch (s) sehingga tidak mengubah isi dari array asli supplier pada outputDaftarMitra/tabel supplier asli)
-	
+
 	var nama supplier
 	var left, mid, right, found, arrNama, i int
 	found = -1
@@ -411,6 +399,7 @@ func countWilayah(s supplier, arrCount int) {
 	var w wilayahs
 	var tanda bool
 	var countw int
+	var returns string
 	w[0].nama = s[0].wilayah
 	countw = 0
 	for i := 1; i < arrCount; i++ {
@@ -435,19 +424,25 @@ func countWilayah(s supplier, arrCount int) {
 		}
 	}
 	outputWilayah(w, countw)
-	// [GANTI] input return manual diganti
+	fmt.Print("\n[1] RETURN\n")
+	fmt.Scan(&returns)
+	menuawal(s, arrCount)
 }
 
 func outputWilayah(w wilayahs, countw int) {
-	//output jumlah dan rata2 wilayah
-	for i := 0; i <= countw; i++ {
-		fmt.Printf("\nWilayah %s: jumlah %d supplier dan rata-rata rating adalah %.2f", w[i].nama, w[i].wilcount, rata2rating(w, i))
-		fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
-		for j := 0; j < w[i].wilcount; j++ {
-			fmt.Printf("%-2d | %-15s | %-12s | %-10s | %-15s |  %-.2f  | %s\n", j+1, w[i].isiSupplier[j].nama, w[i].isiSupplier[j].kontak, w[i].isiSupplier[j].wilayah, w[i].isiSupplier[j].jenismat, w[i].isiSupplier[j].rating, w[i].isiSupplier[j].rpelayanan[0])
-			if w[i].isiSupplier[j].riwayatke > 0 {
-				for k := 1; k <= w[i].isiSupplier[j].riwayatke; k++ {
-					fmt.Printf("%-2s | %-15s | %-12s | %-10s | %-15s |  %-3s  | %s\n", " ", " ", " ", " ", " ", " ", w[i].isiSupplier[j].rpelayanan[k])
+	//output jumlah dan rata2 wilayah]
+	if w[0].nama == "" {
+		fmt.Printf("\n%16sBELUM ADA DATA YANG DIINPUT !!!%17s\n", "", "")
+	} else {
+		for i := 0; i <= countw; i++ {
+			fmt.Printf("\nWilayah %s: jumlah %d supplier dan rata-rata rating adalah %.2f", w[i].nama, w[i].wilcount, rata2rating(w, i))
+			fmt.Printf("\n%2s |       %4s      |    %5s    |   %6s   |     %8s    | %5s | %s\n-------------------------------------------------------------------------------------------------\n", "NO", "NAMA", "KONTAK", "LOKASI", "MATERIAL", "RATING", "RIWAYAT PELAYANAN")
+			for j := 0; j < w[i].wilcount; j++ {
+				fmt.Printf("%-2d | %-15s | %-12s | %-10s | %-15s |  %-.2f  | %s\n", j+1, w[i].isiSupplier[j].nama, w[i].isiSupplier[j].kontak, w[i].isiSupplier[j].wilayah, w[i].isiSupplier[j].jenismat, w[i].isiSupplier[j].rating, w[i].isiSupplier[j].rpelayanan[0])
+				if w[i].isiSupplier[j].riwayatke > 0 {
+					for k := 1; k <= w[i].isiSupplier[j].riwayatke; k++ {
+						fmt.Printf("%-2s | %-15s | %-12s | %-10s | %-15s |  %-3s  | %s\n", " ", " ", " ", " ", " ", " ", w[i].isiSupplier[j].rpelayanan[k])
+					}
 				}
 			}
 		}
